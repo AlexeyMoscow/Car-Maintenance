@@ -1,3 +1,15 @@
 spring:
   application:
     name: Car Maintenance
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/car_maintenance
+    username: app
+    password: app
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true

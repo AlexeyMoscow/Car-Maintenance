@@ -1,0 +1,35 @@
+services: #Корневой раздел docker-compose: здесь перечисляются контейнеры/сервисы, которые нужно поднять.
+  postgres: # Имя сервиса внутри compose
+    image: postgres:16 # название образа
+    container_name: car-maintenance-postgres # название контейнера
+    restart: unless-stopped # контейнер перезапустится после падения / после перезапуска Dockerб но если сам выкл - не перезапустится
+    environment:  # Блок переменных окружения внутри контейнера. Для postgres-образа это параметры первичной инициализации.
+      POSTGRES_DB: car_maintenance # Имя базы данных, которую Postgres создаст при первом запуске, когда хранилище пустое.
+      POSTGRES_USER: app # user
+      POSTGRES_PASSWORD: app # password
+    ports:
+      - "5432:5432"# Проброс портов “хост:контейнер”.
+    volumes: # Монтирование томов (чтобы данные не терялись при пересоздании контейнера).
+      - pgdata:/var/lib/postgresql/data # Именованный volume pgdata монтируется в /var/lib/postgresql/data — это папка с данными Postgres.
+    healthcheck: # Проверка “здоровья” контейнера. Docker будет периодически выполнять команду и помечать контейнер healthy/unhealthy
+      test: [ "CMD-SHELL", "pg_isready -U app -d car_maintenance" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: car-maintenance-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@test.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+volumes: # Раздел объявления именованных томов.
+  pgdata: #Объявление тома pgdata. Docker создаст его и будет хранить на диске хоста.
+  pgadmin_data:
