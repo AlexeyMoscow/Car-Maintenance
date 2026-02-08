@@ -30,6 +30,22 @@ services: #Корневой раздел docker-compose: здесь перечи
         condition: service_healthy
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+  app:
+    container_name: car-maintenance-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/car_maintenance
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: app
+      SPRING_FLYWAY_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
 volumes: # Раздел объявления именованных томов.
   pgdata: #Объявление тома pgdata. Docker создаст его и будет хранить на диске хоста.
   pgadmin_data:
