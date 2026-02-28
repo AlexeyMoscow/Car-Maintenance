@@ -27,7 +27,7 @@ import {
 const numberFormat = new Intl.NumberFormat("en-US");
 
 const formatDate = (value?: string | null) => {
-  if (!value) return "—";
+  if (!value) return "â€”";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat("en-US", {
@@ -297,10 +297,10 @@ export default function Page() {
                               <span>
                                 {typeof car.mileage === "number"
                                   ? `${numberFormat.format(car.mileage)} km`
-                                  : "Mileage —"}
+                                  : "Mileage â€”"}
                               </span>
                               <span>
-                                {typeof car.releaseYear === "number" ? `Year ${car.releaseYear}` : "Year —"}
+                                {typeof car.releaseYear === "number" ? `Year ${car.releaseYear}` : "Year â€”"}
                               </span>
                             </div>
                           </button>
@@ -337,12 +337,12 @@ export default function Page() {
                       </div>
                       <div>
                         <p className="text-xs uppercase tracking-widest text-[#BDBDBD]">Owner</p>
-                        <p className="text-base text-[#F5F5F5]">{selectedCar.owner ?? "—"}</p>
+                        <p className="text-base text-[#F5F5F5]">{selectedCar.owner ?? "â€”"}</p>
                       </div>
                       <div>
                         <p className="text-xs uppercase tracking-widest text-[#BDBDBD]">Release year</p>
                         <p className="text-base text-[#F5F5F5]">
-                          {selectedCar.releaseYear ?? "—"}
+                          {selectedCar.releaseYear ?? "â€”"}
                         </p>
                       </div>
                       <div>
@@ -350,7 +350,7 @@ export default function Page() {
                         <p className="text-base text-[#F5F5F5]">
                           {typeof selectedCar.mileage === "number"
                             ? `${numberFormat.format(selectedCar.mileage)} km`
-                            : "—"}
+                            : "â€”"}
                         </p>
                       </div>
                       <div>
@@ -363,10 +363,10 @@ export default function Page() {
                       <p className="text-xs uppercase tracking-widest text-[#BDBDBD]">Next service</p>
                       <div className="mt-2 flex flex-col gap-1 text-sm text-[#F5F5F5]">
                         <span>
-                          Due at {nextServiceKm ? `${numberFormat.format(nextServiceKm)} km` : "—"}
+                          Due at {nextServiceKm ? `${numberFormat.format(nextServiceKm)} km` : "â€”"}
                         </span>
                         <span>
-                          Due date {selectedCar.nextServiceDueDate ? formatDate(selectedCar.nextServiceDueDate) : "—"}
+                          Due date {selectedCar.nextServiceDueDate ? formatDate(selectedCar.nextServiceDueDate) : "â€”"}
                         </span>
                       </div>
                     </div>
@@ -423,15 +423,15 @@ export default function Page() {
                       {historyForSelected.map((record) => (
                         <TableRow key={record.id} className="border-[#2A2A2A]">
                           <TableCell>{formatDate(record.date ?? undefined)}</TableCell>
-                          <TableCell>{record.type ?? "—"}</TableCell>
+                          <TableCell>{record.type ?? "â€”"}</TableCell>
                           <TableCell>
                             {typeof record.mileage === "number"
                               ? `${numberFormat.format(record.mileage)} km`
-                              : "—"}
+                              : "â€”"}
                           </TableCell>
-                          <TableCell className="text-[#BDBDBD]">{record.notes ?? "—"}</TableCell>
+                          <TableCell className="text-[#BDBDBD]">{record.notes ?? "â€”"}</TableCell>
                           <TableCell className="text-right">
-                            {typeof record.cost === "number" ? `$${numberFormat.format(record.cost)}` : "—"}
+                            {typeof record.cost === "number" ? `$${numberFormat.format(record.cost)}` : "â€”"}
                           </TableCell>
                         </TableRow>
                       ))}

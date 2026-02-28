@@ -1,4 +1,4 @@
-﻿export type Car = {
+export type Car = {
   id: number;
   regNumber: string;
   model: string;
