@@ -5,9 +5,13 @@ const rawTarget =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "http://localhost:8080";
 
-const proxyTarget = rawTarget.startsWith("http")
+const normalizedTarget = rawTarget.startsWith("http")
   ? rawTarget.replace(/\/$/, "")
   : "http://localhost:8080";
+
+const proxyTarget = normalizedTarget.endsWith("/api")
+  ? normalizedTarget
+  : `${normalizedTarget}/api`;
 
 async function handler(request: Request, params: { path: string[] }) {
   const url = new URL(request.url);
