@@ -1,15 +1,25 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" fill="#0B0B0B" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="64" height="64">
+  <!-- background -->
+  <rect width="512" height="512" fill="#0B0B0B"/>
+
+  <!-- gear -->
   <g fill="#FFCD00">
-    <rect x="29" y="4" width="6" height="10" rx="3" />
-    <rect x="29" y="50" width="6" height="10" rx="3" />
-    <rect x="4" y="29" width="10" height="6" rx="3" />
-    <rect x="50" y="29" width="10" height="6" rx="3" />
-    <rect x="10.5" y="10.5" width="8" height="6" rx="3" transform="rotate(-45 10.5 10.5)" />
-    <rect x="45.5" y="45.5" width="8" height="6" rx="3" transform="rotate(-45 45.5 45.5)" />
-    <rect x="45.5" y="10.5" width="8" height="6" rx="3" transform="rotate(45 45.5 10.5)" />
-    <rect x="10.5" y="45.5" width="8" height="6" rx="3" transform="rotate(45 10.5 45.5)" />
-    <circle cx="32" cy="32" r="16" />
-    <circle cx="32" cy="32" r="7" fill="#0B0B0B" />
+    <!-- teeth (8) -->
+    <g transform="translate(256 256)">
+      <rect x="-40" y="-252" width="80" height="110" rx="6" />
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(45)"/>
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(90)"/>
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(135)"/>
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(180)"/>
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(225)"/>
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(270)"/>
+      <rect x="-40" y="-252" width="80" height="110" rx="6" transform="rotate(315)"/>
+    </g>
+
+    <!-- main gear body -->
+    <circle cx="256" cy="256" r="190"/>
   </g>
+
+  <!-- inner hole (cut out by painting background color on top) -->
+  <circle cx="256" cy="256" r="95" fill="#0B0B0B"/>
 </svg>
