@@ -14,5 +14,6 @@ From repo root:
 Open: http://localhost:3000
 
 Environment:
-- `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8080`)
-- Optional: `API_PROXY_TARGET` if you want the Next.js proxy to target a different backend URL.
+- Leave `NEXT_PUBLIC_API_BASE_URL` unset to use the built-in Next.js proxy (`/api`) and avoid CORS.
+- `API_PROXY_TARGET` (default `http://localhost:8080`) controls where the proxy forwards.
+- Or set `NEXT_PUBLIC_API_BASE_URL` directly to your backend URL if CORS is enabled.

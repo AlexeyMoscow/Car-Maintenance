@@ -1,10 +1,12 @@
-﻿import type { Car, ServiceRecord, ServiceRecordCreate } from "@/lib/types";
+import type { Car, ServiceRecord, ServiceRecordCreate } from "@/lib/types";
 
-const rawBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-const normalizedBase = rawBase.replace(/\/$/, "");
-const apiBase = normalizedBase.endsWith("/api")
-  ? normalizedBase
-  : `${normalizedBase}/api`;
+const rawBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+const normalizedBase = rawBase ? rawBase.replace(/\/$/, "") : "";
+const apiBase = normalizedBase
+  ? normalizedBase.endsWith("/api")
+    ? normalizedBase
+    : `${normalizedBase}/api`
+  : "/api";
 
 export class ApiError extends Error {
   status: number;
