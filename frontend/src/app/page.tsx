@@ -100,6 +100,7 @@ export default function Page() {
   const [carDialogOpen, setCarDialogOpen] = useState(false);
   const [carDialogSubmitting, setCarDialogSubmitting] = useState(false);
   const [carFormState, setCarFormState] = useState<CarFormState>(emptyCarForm());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const selectedCar = useMemo(
     () => cars.find((car) => car.id === selectedCarId) ?? null,
@@ -286,11 +287,6 @@ export default function Page() {
 
   const handleDeleteCar = async () => {
     if (!selectedCar) return;
-    const confirmed = window.confirm(
-      `Delete ${selectedCar.regNumber}? This cannot be undone.`
-    );
-    if (!confirmed) return;
-
     setErrorMessage(null);
     try {
       await deleteCar(selectedCar.id);
@@ -487,7 +483,7 @@ export default function Page() {
                       </Button>
                       <Button
                         variant="outline"
-                        onClick={handleDeleteCar}
+                        onClick={() => setDeleteDialogOpen(true)}
                         className="rounded-md border-[#E5484D] bg-transparent text-[#E5484D] hover:bg-[#1A0E0F]"
                       >
                         Delete car
@@ -733,6 +729,37 @@ export default function Page() {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete car</DialogTitle>
+          </DialogHeader>
+          <div className="text-sm text-[#BDBDBD]">
+            Delete {selectedCar?.regNumber ?? "this car"}? This action cannot be undone.
+          </div>
+          <DialogFooter className="pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="rounded-md border-[#2A2A2A] bg-transparent text-[#BDBDBD] hover:bg-[#1A1A1A]"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={async () => {
+                await handleDeleteCar();
+                setDeleteDialogOpen(false);
+              }}
+              className="rounded-md bg-[#E5484D] text-[#0B0B0B] hover:bg-[#d63b40]"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
