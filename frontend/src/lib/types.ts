@@ -10,6 +10,14 @@ export type Car = {
   nextServiceDueDate?: string | null;
 };
 
+export type CarCreate = {
+  regNumber: string;
+  model: string;
+  mileage?: number;
+  releaseYear?: number;
+  owner?: string;
+};
+
 export type ServiceRecord = {
   id: number | string;
   carId?: number;

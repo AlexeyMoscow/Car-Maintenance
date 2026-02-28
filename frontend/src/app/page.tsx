@@ -4,10 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ApiError,
   createServiceRecord,
+  createCar,
   listCars,
   listServiceHistory,
 } from "@/lib/api";
-import type { Car, ServiceRecord, ServiceRecordCreate } from "@/lib/types";
+import type { Car, CarCreate, ServiceRecord, ServiceRecordCreate } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,12 +59,29 @@ type ServiceFormState = {
   cost: string;
 };
 
+type CarFormState = {
+  regNumber: string;
+  model: string;
+  mileage: string;
+  releaseYear: string;
+  owner: string;
+};
+
 const emptyForm = (car?: Car | null, defaults?: Partial<ServiceFormState>): ServiceFormState => ({
   date: todayIso(),
   type: "",
   mileage: car?.mileage?.toString() ?? "",
   notes: "",
   cost: "",
+  ...defaults,
+});
+
+const emptyCarForm = (defaults?: Partial<CarFormState>): CarFormState => ({
+  regNumber: "",
+  model: "",
+  mileage: "",
+  releaseYear: "",
+  owner: "",
   ...defaults,
 });
 
@@ -78,6 +96,9 @@ export default function Page() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogSubmitting, setDialogSubmitting] = useState(false);
   const [formState, setFormState] = useState<ServiceFormState>(emptyForm());
+  const [carDialogOpen, setCarDialogOpen] = useState(false);
+  const [carDialogSubmitting, setCarDialogSubmitting] = useState(false);
+  const [carFormState, setCarFormState] = useState<CarFormState>(emptyCarForm());
 
   const selectedCar = useMemo(
     () => cars.find((car) => car.id === selectedCarId) ?? null,
@@ -162,6 +183,11 @@ export default function Page() {
     setDialogOpen(true);
   };
 
+  const openCarDialog = (defaults?: Partial<CarFormState>) => {
+    setCarFormState(emptyCarForm(defaults));
+    setCarDialogOpen(true);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!selectedCar) {
@@ -203,6 +229,55 @@ export default function Page() {
     }
   };
 
+  const handleCarSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const mileageValue =
+      carFormState.mileage.trim() === "" ? undefined : Number(carFormState.mileage);
+    const releaseYearValue =
+      carFormState.releaseYear.trim() === "" ? undefined : Number(carFormState.releaseYear);
+
+    if (mileageValue !== undefined && (Number.isNaN(mileageValue) || mileageValue < 0)) {
+      setErrorMessage("Mileage must be a valid number.");
+      return;
+    }
+    if (
+      releaseYearValue !== undefined &&
+      (Number.isNaN(releaseYearValue) || releaseYearValue < 1900)
+    ) {
+      setErrorMessage("Release year must be a valid number.");
+      return;
+    }
+
+    const payload: CarCreate = {
+      regNumber: carFormState.regNumber.trim(),
+      model: carFormState.model.trim(),
+      mileage: mileageValue,
+      releaseYear: releaseYearValue,
+      owner: carFormState.owner.trim() || undefined,
+    };
+
+    if (!payload.regNumber || !payload.model) {
+      setErrorMessage("Reg number and model are required.");
+      return;
+    }
+
+    setCarDialogSubmitting(true);
+    setErrorMessage(null);
+    try {
+      const created = await createCar(payload);
+      setCarDialogOpen(false);
+      await loadCars();
+      if (created?.id) {
+        setSelectedCarId(created.id);
+      }
+    } catch (err) {
+      const message = err instanceof ApiError ? err.details || err.message : "Failed to create car";
+      setErrorMessage(message);
+    } finally {
+      setCarDialogSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0B0B0B] text-[#F5F5F5]">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-6">
@@ -211,13 +286,22 @@ export default function Page() {
             <p className="text-sm uppercase tracking-[0.3em] text-[#BDBDBD]">Service Dashboard</p>
             <h1 className="text-2xl font-semibold">Car Maintenance</h1>
           </div>
-          <Button
-            onClick={() => openDialog({ type: "" })}
-            className="rounded-md bg-[#FFCD00] text-[#0B0B0B] hover:bg-[#E6B800]"
-            disabled={!selectedCar}
-          >
-            Add service record
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="rounded-md border-[#FFCD00] bg-transparent text-[#FFCD00]"
+              onClick={() => openCarDialog()}
+            >
+              Add car
+            </Button>
+            <Button
+              onClick={() => openDialog({ type: "" })}
+              className="rounded-md bg-[#FFCD00] text-[#0B0B0B] hover:bg-[#E6B800]"
+              disabled={!selectedCar}
+            >
+              Add service record
+            </Button>
+          </div>
         </header>
 
         {errorMessage ? (
@@ -527,6 +611,92 @@ export default function Page() {
               </Button>
               <Button type="submit" disabled={dialogSubmitting}>
                 {dialogSubmitting ? "Saving..." : "Save record"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={carDialogOpen} onOpenChange={setCarDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add car</DialogTitle>
+          </DialogHeader>
+          <form className="grid gap-4" onSubmit={handleCarSubmit}>
+            <div className="grid gap-2">
+              <label className="text-xs uppercase tracking-widest text-[#BDBDBD]" htmlFor="car-reg">
+                Reg number
+              </label>
+              <Input
+                id="car-reg"
+                value={carFormState.regNumber}
+                onChange={(event) => setCarFormState((prev) => ({ ...prev, regNumber: event.target.value }))}
+                placeholder="CAT-0000"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-xs uppercase tracking-widest text-[#BDBDBD]" htmlFor="car-model">
+                Model
+              </label>
+              <Input
+                id="car-model"
+                value={carFormState.model}
+                onChange={(event) => setCarFormState((prev) => ({ ...prev, model: event.target.value }))}
+                placeholder="Toyota Hilux 2.8D"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <label className="text-xs uppercase tracking-widest text-[#BDBDBD]" htmlFor="car-mileage">
+                  Mileage
+                </label>
+                <Input
+                  id="car-mileage"
+                  type="number"
+                  min={0}
+                  value={carFormState.mileage}
+                  onChange={(event) => setCarFormState((prev) => ({ ...prev, mileage: event.target.value }))}
+                  placeholder="0"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-xs uppercase tracking-widest text-[#BDBDBD]" htmlFor="car-year">
+                  Release year
+                </label>
+                <Input
+                  id="car-year"
+                  type="number"
+                  min={1900}
+                  value={carFormState.releaseYear}
+                  onChange={(event) => setCarFormState((prev) => ({ ...prev, releaseYear: event.target.value }))}
+                  placeholder="2024"
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <label className="text-xs uppercase tracking-widest text-[#BDBDBD]" htmlFor="car-owner">
+                Owner
+              </label>
+              <Input
+                id="car-owner"
+                value={carFormState.owner}
+                onChange={(event) => setCarFormState((prev) => ({ ...prev, owner: event.target.value }))}
+                placeholder="Owner name"
+              />
+            </div>
+            <DialogFooter className="pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCarDialogOpen(false)}
+                className="rounded-md border-[#FFCD00] bg-transparent text-[#FFCD00]"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={carDialogSubmitting}>
+                {carDialogSubmitting ? "Saving..." : "Save car"}
               </Button>
             </DialogFooter>
           </form>

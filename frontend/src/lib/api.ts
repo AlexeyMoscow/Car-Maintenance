@@ -1,4 +1,4 @@
-import type { Car, ServiceRecord, ServiceRecordCreate } from "@/lib/types";
+import type { Car, CarCreate, ServiceRecord, ServiceRecordCreate } from "@/lib/types";
 
 const rawBase = process.env.NEXT_PUBLIC_API_BASE_URL;
 const normalizedBase = rawBase ? rawBase.replace(/\/$/, "") : "";
@@ -54,6 +54,23 @@ export async function listCars(): Promise<Car[]> {
 
 export async function getCar(id: number): Promise<Car> {
   return request<Car>(`/cars/${id}`);
+}
+
+export async function createCar(payload: CarCreate): Promise<Car> {
+  try {
+    return await request<Car>("/car", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      return await request<Car>("/cars", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    }
+    throw err;
+  }
 }
 
 export async function listServiceHistory(carId: number): Promise<ServiceRecord[]> {
