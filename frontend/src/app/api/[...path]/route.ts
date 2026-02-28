@@ -20,10 +20,15 @@ async function handler(request: Request, params: { path: string[] }) {
   const headers = new Headers(request.headers);
   headers.delete("host");
 
+  const body =
+    request.method === "GET" || request.method === "HEAD"
+      ? undefined
+      : Buffer.from(await request.arrayBuffer());
+
   const response = await fetch(targetUrl, {
     method: request.method,
     headers,
-    body: request.method === "GET" || request.method === "HEAD" ? null : request.body,
+    body,
   });
 
   return new NextResponse(response.body, {
