@@ -1,0 +1,19 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-[#0B0B0B] text-[#F5F5F5];
+}
+
+* {
+  border-color: #2A2A2A;
+}
