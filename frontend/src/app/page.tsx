@@ -5,6 +5,7 @@ import {
   ApiError,
   createServiceRecord,
   createCar,
+  deleteCar,
   listCars,
   listServiceHistory,
 } from "@/lib/api";
@@ -142,7 +143,12 @@ export default function Page() {
     try {
       const data = await listCars();
       setCars(data);
-      setSelectedCarId((prev) => (prev ?? data[0]?.id ?? null));
+      setSelectedCarId((prev) => {
+        if (prev && data.some((car) => car.id === prev)) {
+          return prev;
+        }
+        return data[0]?.id ?? null;
+      });
     } catch (err) {
       const message = err instanceof ApiError ? err.details || err.message : "Failed to load cars";
       setErrorMessage(message);
@@ -275,6 +281,26 @@ export default function Page() {
       setErrorMessage(message);
     } finally {
       setCarDialogSubmitting(false);
+    }
+  };
+
+  const handleDeleteCar = async () => {
+    if (!selectedCar) return;
+    const confirmed = window.confirm(
+      `Delete ${selectedCar.regNumber}? This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setErrorMessage(null);
+    try {
+      await deleteCar(selectedCar.id);
+      const remaining = cars.filter((car) => car.id !== selectedCar.id);
+      setSelectedCarId(remaining[0]?.id ?? null);
+      await loadCars();
+      setHistory([]);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.details || err.message : "Failed to delete car";
+      setErrorMessage(message);
     }
   };
 
@@ -458,6 +484,13 @@ export default function Page() {
                     <div className="flex flex-wrap gap-3">
                       <Button variant="outline" className="rounded-md border-[#FFCD00] bg-transparent text-[#FFCD00]">
                         Edit car
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleDeleteCar}
+                        className="rounded-md border-[#E5484D] bg-transparent text-[#E5484D] hover:bg-[#1A0E0F]"
+                      >
+                        Delete car
                       </Button>
                       <Button
                         onClick={() => openDialog({ type: "Service" })}

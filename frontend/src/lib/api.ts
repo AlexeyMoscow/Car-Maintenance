@@ -93,3 +93,9 @@ export async function createServiceRecord(
     body: JSON.stringify(payload),
   });
 }
+
+export async function deleteCar(carId: number): Promise<void> {
+  await request<void>(`/cars/${carId}`, {
+    method: "DELETE",
+  });
+}
